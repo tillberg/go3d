@@ -180,6 +180,14 @@ func (vec *T) Add(v *T) *T {
 	return vec
 }
 
+// Add adds another vector to vec.
+func (vec *T) AddScaled(v *T, scale float32) *T {
+	vec[0] += scale * v[0]
+	vec[1] += scale * v[1]
+	vec[2] += scale * v[2]
+	return vec
+}
+
 // Sub subtracts another vector from vec.
 func (vec *T) Sub(v *T) *T {
 	vec[0] -= v[0]

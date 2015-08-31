@@ -200,6 +200,14 @@ func Add(a, b *T) T {
 	return T{a[0] + b[0], a[1] + b[1], a[2] + b[2]}
 }
 
+// Add adds another vector to vec.
+func (vec *T) AddScaled(v *T, scale float64) *T {
+	vec[0] += scale * v[0]
+	vec[1] += scale * v[1]
+	vec[2] += scale * v[2]
+	return vec
+}
+
 // Squared Distance between two vectors
 func SquareDistance(a, b *T) float64 {
 	d := Sub(a, b)

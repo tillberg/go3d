@@ -605,6 +605,53 @@ func (mat *T) Determinant() float32 {
 	return s1*det1 - s2*det2 + s3*det3 - s4*det4
 }
 
+// Implementation based on algorithm description at https://msdn.microsoft.com/en-us/library/windows/desktop/bb281710(v=vs.85).aspx
+func (mat *T) assignLookAt(cameraPosition, cameraTarget, cameraUpVector *vec3.T, leftHand bool) *T {
+	zaxis := *cameraTarget
+	zaxis.Sub(cameraPosition)
+	zaxis.Normalize()
+	if !leftHand {
+		zaxis.Invert()
+	}
+
+	xaxis := vec3.Cross(cameraUpVector, &zaxis)
+	xaxis.Normalize()
+
+	yaxis := vec3.Cross(&zaxis, &xaxis)
+
+	mat[0][0] = xaxis[0]
+	mat[0][1] = yaxis[0]
+	mat[0][2] = zaxis[0]
+	mat[0][3] = 0
+
+	mat[1][0] = xaxis[1]
+	mat[1][1] = yaxis[1]
+	mat[1][2] = zaxis[1]
+	mat[1][3] = 0
+
+	mat[2][0] = xaxis[2]
+	mat[2][1] = yaxis[2]
+	mat[2][2] = zaxis[2]
+	mat[2][3] = 0
+
+	mat[3][0] = -vec3.Dot(&xaxis, cameraPosition)
+	mat[3][1] = -vec3.Dot(&yaxis, cameraPosition)
+	mat[3][2] = -vec3.Dot(&zaxis, cameraPosition)
+	mat[3][3] = 1
+
+	return mat
+}
+
+// Assigns a left-handed look-at matrix based on the camera position, target, and up vectors specified.
+func (mat *T) AssignLookAtLH(cameraPosition, cameraTarget, cameraUpVector *vec3.T) *T {
+	return mat.assignLookAt(cameraPosition, cameraTarget, cameraUpVector, true)
+}
+
+// Assigns a right-handed look-at matrix based on the camera position, target, and up vectors specified.
+func (mat *T) AssignLookAtRH(cameraPosition, cameraTarget, cameraUpVector *vec3.T) *T {
+	return mat.assignLookAt(cameraPosition, cameraTarget, cameraUpVector, false)
+}
+
 // IsReflective returns true if the matrix can be reflected by a plane.
 func (mat *T) IsReflective() bool {
 	return mat.Determinant3x3() < 0
